@@ -1,0 +1,31 @@
+image: nixos/nix
+
+before_script:
+- echo -e 'silent\nshow-error\nretry=2' | tee ~/.curlrc > /dev/null
+- nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+- nix-channel --update || true
+- nix-shell --pure --run true >> /dev/null 2>&1 || nix-shell --pure --run true
+- nix-shell -p git --run 'git submodule update --init --recursive'
+
+script:
+  - nix-build --arg use_clang $USE_CLANG --arg use_qt $USE_QT
+
+gcc_noqt:
+  variables:
+    USE_CLANG: false
+    USE_QT: false
+
+gcc_qt:
+  variables:
+    USE_CLANG: false
+    USE_QT: true
+
+clang_noqt:
+  variables:
+    USE_CLANG: true
+    USE_QT: false
+
+clang_qt:
+  variables:
+    USE_CLANG: true
+    USE_QT: true
